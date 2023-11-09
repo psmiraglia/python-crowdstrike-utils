@@ -37,10 +37,13 @@ logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                     level=logging.DEBUG,
                     filename='r2m.log')
 
+TAG_BASE = 'FalconGroupingTags/r2m'
+
 
 def generate_tag():
-    tag = 'FalconGroupingTags/r2m-'
-    tag += ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
+    today = datetime.datetime.now().strftime('%Y%m%d')
+    salt = ''.join(random.choices(string.ascii_lowercase + string.digits, k=4))
+    tag = '-'.join([TAG_BASE, today, salt])
     return tag
 
 
@@ -106,6 +109,12 @@ if __name__ == '__main__':
         if args.group:
             if ('groups' not in d) or (args.group not in d['groups']):
                 continue
+
+        # skip the defice if it has been already marked for moving
+        tags = [t for t in d['tags'] if t.startswith(TAG_BASE)]
+        if tags:
+            continue
+
         device_id = d.get('device_id')
         hostname = d.get('hostname')
         first_seen = d.get('first_seen')[0:10]
