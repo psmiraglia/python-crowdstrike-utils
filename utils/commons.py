@@ -114,3 +114,25 @@ def get_host_groups(api, group_ids):
         resp = _api_call(api, 'getHostGroups', ids=group_ids)
         return resp['body']['resources']
     return _details(api, group_ids, cb)
+
+
+def retrieve_user_uuid(api, user_ids):
+    resp = _api_call(api, 'RetrieveUserUUID', uid=user_ids)
+    return resp['body']['resources']
+
+
+def get_user_role_ids(api, user_uuid):
+    resp = _api_call(api, 'GetUserRoleIds', user_uuid=user_uuid)
+    return resp['body']['resources']
+
+
+def revoke_user_role_ids(api, user_uuid, role_ids):
+    resp = _api_call(api, 'RevokeUserRoleIds',
+                     user_uuid=user_uuid, ids=role_ids)
+    return resp
+
+
+def grant_user_role_ids(api, user_uuid, role_ids):
+    body = {'roleIds': role_ids}
+    resp = _api_call(api, 'GrantUserRoleIds', user_uuid=user_uuid, body=body)
+    return resp

@@ -1,6 +1,7 @@
 SOURCES := \
 	utils/commons.py \
 	utils/r2m.py \
+	utils/sup.py
 
 default: style
 

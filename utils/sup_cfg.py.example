@@ -1,0 +1,47 @@
+PROFILES = ['basic', 'advanced', 'admin']
+
+ROLES = {
+    'basic': [
+        'falconhost_investigator',
+        'falconhost_read_only'
+    ],
+    'advanced': [
+        'binarly_admin',
+        'binarly_user',
+        'custom_ioas_manager',
+        'dashboard_admin',
+        'desktop_support',
+        'device_control_manager',
+        'discover_admin',
+        'discover_analyst',
+        'endpoint_manager',
+        'event_viewer',
+        'falcon_console_guest',
+        'falconhost_admin',
+        'falconhost_analyst',
+        'falconhost_investigator',
+        'falconhost_read_only',
+        'firewall_manager',
+        'help_desk',
+        'intel_basic_analyst',
+        'overwatch_malware_submitter',
+        'prevention_hashes_manager',
+        'prevention_policy_manager',
+        'quarantine_manager',
+        'remediation_manager',
+        'remote_responder',
+        'remote_responder_one',
+        'remote_responder_three',
+        'response_workflow_author',
+        'scheduled_report_admin',
+        'scheduled_report_analyst',
+        'security_lead',
+        'vulnerability_manager'
+    ],
+    'admin': [
+        'falconhost_admin',
+        'remote_responder_three'
+    ]
+}
+
+DEFAULT_PROFILE = 'basic'
