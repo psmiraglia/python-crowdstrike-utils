@@ -26,17 +26,7 @@ SOFTWARE.
 
 
 def _api_call(api, command, *args, **kwargs):
-    body = kwargs.get('body', {})
-    offset = kwargs.get('offset', 0)
-    limit = kwargs.get('limit', 5000)
-    sort = kwargs.get('sort', None)
-    filter = kwargs.get('filter', None)
-
-    if body:
-        r = api.command(command, body=body)
-    else:
-        r = api.command(command, offset=offset, limit=limit, sort=sort,
-                        filter=filter)
+    r = api.command(command, **kwargs)
     sc = r.get('status_code')
     if sc < 200 or sc > 299:
         err = [f'{e["message"]} ({e["code"]})' for e in r['body']['errors']]
@@ -113,3 +103,14 @@ def update_device_tags(api, device_ids, action, tags):
     body = {'action': action, 'device_ids': device_ids, 'tags': tags}
     resp = _api_call(api, 'UpdateDeviceTags', body=body)
     return resp
+
+
+def query_host_groups(api, filter=None, sort=None):
+    return _query(api, 'queryHostGroups', filter, sort)
+
+
+def get_host_groups(api, group_ids):
+    def cb(api, group_ids):
+        resp = _api_call(api, 'getHostGroups', ids=group_ids)
+        return resp['body']['resources']
+    return _details(api, group_ids, cb)

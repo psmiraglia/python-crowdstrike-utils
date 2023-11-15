@@ -25,6 +25,7 @@ import datetime
 import logging
 import random
 import string
+import sys
 from argparse import ArgumentParser
 
 from falconpy import APIHarnessV2
@@ -51,6 +52,7 @@ def cmd_line():
     parser = ArgumentParser()
     parser.add_argument('--debug', action='store_true', required=False)
     parser.add_argument('--dry-run', action='store_true', required=False)
+    parser.add_argument('--list-groups', action='store_true', required=False)
     parser.add_argument('-d', '--days', required=False, default='7')
     parser.add_argument('-f', '--from', required=False, default='', dest='dt_from')  # noqa
     parser.add_argument('-g', '--group', required=False)
@@ -60,6 +62,20 @@ def cmd_line():
 
 if __name__ == '__main__':
     args = cmd_line()
+
+    # init the Falcon api
+    api = APIHarnessV2(client_id=CLIENT_ID,
+                       client_secret=CLIENT_SECRET,
+                       debug=args.debug)
+
+    # list groups
+    if args.list_groups:
+        ids = commons.query_host_groups(api, None, None)
+        groups = commons.get_host_groups(api, ids)
+        table = [[g.get('id'), g.get('name')] for g in groups]
+        headers = ['Id', 'Name']
+        print(tabulate(table, headers))
+        sys.exit(0)
 
     # get today's date
     today = datetime.datetime.now()
@@ -88,11 +104,6 @@ if __name__ == '__main__':
         print(f'(>) f_dev: {f_dev}')
         f_det = f"last_behavior:>='{days_ago}'"
         print(f'(>) f_det: {f_det}')
-
-    # init the Falcon api
-    api = APIHarnessV2(client_id=CLIENT_ID,
-                       client_secret=CLIENT_SECRET,
-                       debug=args.debug)
 
     # get endpoints that were linked in the last N days
     devices_ids = commons.query_devices_by_filter(api, f_dev, 'first_seen.desc')  # noqa
