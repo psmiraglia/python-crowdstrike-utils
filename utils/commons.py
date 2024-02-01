@@ -20,6 +20,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
 
+import json
+import time
+
 #
 # Helpers
 #
@@ -136,3 +139,55 @@ def grant_user_role_ids(api, user_uuid, role_ids):
     body = {'roleIds': role_ids}
     resp = _api_call(api, 'GrantUserRoleIds', user_uuid=user_uuid, body=body)
     return resp
+
+
+def rtr_init_session(api, device_id):
+    body = {'device_id': device_id, 'origin': 'api', 'queue_offline': False}
+    resp = _api_call(api, 'RTR_InitSession', body=body)
+    return resp['body']['resources']
+
+
+def rtr_delete_session(api, session_id):
+    parameters = {'session_id': session_id}
+    resp = _api_call(api, 'RTR_DeleteSession', parameters=parameters)
+    return resp
+
+
+def rtr_exec_ar_command(api, session_id, cmd, cmd_line):
+    print(f'(*) Running command: {cmd_line}')
+    body = {"base_command": cmd, "command_string": cmd_line,
+            "persist": False, "session_id": session_id}
+    resp = _api_call(api, 'RTR_ExecuteActiveResponderCommand',
+                     timeout=10, timeout_duration='s', body=body)
+    return resp['body']['resources']
+
+
+def rtr_check_ar_command_status(api, cloud_request_id):
+    complete = False
+    attempt = 0
+    while not complete:
+        resp = _api_call(api, "RTR_CheckActiveResponderCommandStatus",
+                         cloud_request_id=cloud_request_id, sequence_id=0)
+        complete = resp['body']['resources'][0]['complete']
+        stdout = resp['body']['resources'][0]['stdout']
+        stderr = resp['body']['resources'][0]['stderr']
+        if complete:
+            print('(*) Command successfully executed')
+            if stdout:
+                print('>>> stdout')
+                print(stdout)
+                print('>>> ------')
+            if stderr:
+                print('>>> stderr')
+                print(stderr)
+                print('>>> ------')
+
+        # avoid infinite loop
+        attempt += 1
+        if attempt > 6:
+            print('(!) Reached maximum number of attempts')
+            print(json.dumps(resp, indent=2))
+            break
+
+        # wait for the next attempt
+        time.sleep(2)
